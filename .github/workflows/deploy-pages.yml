@@ -2,7 +2,8 @@ name: Deploy My Computer Game
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -21,13 +22,25 @@ jobs:
       - name: Download repository
         uses: actions/checkout@v4
 
+      - name: Check game JavaScript
+        run: node --check game.js
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
-      - name: Upload game files
+      - name: Prepare website files
+        run: |
+          mkdir -p dist
+          cp index.html game.js dist/
+          test -s dist/index.html
+          test -s dist/game.js
+
+      - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist/
 
   deploy:
     environment:
