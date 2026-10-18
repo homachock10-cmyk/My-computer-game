@@ -179,13 +179,43 @@ import * as THREE from 'three';
   const player = new THREE.Group(); scene.add(player);
   const body = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.72,0.34), material('player shirt',0x3e78b6));
   body.position.y=1.05; body.castShadow=true; player.add(body);
+  const shirtCollar = new THREE.Mesh(new THREE.BoxGeometry(0.2,0.1,0.035), material('shirt collar',0x8eb9df));
+  shirtCollar.position.set(0,1.39,0.18); player.add(shirtCollar);
+  const shirtPocket = new THREE.Mesh(new THREE.BoxGeometry(0.12,0.15,0.025), material('shirt pocket',0x2d5c91));
+  shirtPocket.position.set(0.15,1.13,0.181); player.add(shirtPocket);
+  const belt = new THREE.Mesh(new THREE.BoxGeometry(0.43,0.075,0.27), material('player belt',0x42342e));
+  belt.position.set(0,0.69,0); player.add(belt);
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.43,0.43,0.4), material('player skin',0xdca77f));
   head.position.y=1.66; head.castShadow=true; player.add(head);
   const hair = new THREE.Mesh(new THREE.BoxGeometry(0.46,0.18,0.43), material('player hair',0x4a342d));
   hair.position.set(0,1.89,0); hair.castShadow=true; player.add(hair);
+  const fringe = new THREE.Mesh(new THREE.BoxGeometry(0.29,0.09,0.09), material('player fringe',0x4a342d));
+  fringe.position.set(-0.04,1.81,0.2); player.add(fringe);
+  const neck = new THREE.Mesh(new THREE.BoxGeometry(0.17,0.14,0.17), material('player neck',0xdca77f));
+  neck.position.set(0,1.39,0); player.add(neck);
+  for(const side of [-1,1]) {
+    const ear = new THREE.Mesh(new THREE.BoxGeometry(0.07,0.12,0.09), material('player ears',0xc88f6b));
+    ear.position.set(side*0.225,1.65,0.015); player.add(ear);
+    const eyeWhite = new THREE.Mesh(new THREE.BoxGeometry(0.085,0.065,0.025), material('player eye white',0xf6eee0));
+    eyeWhite.position.set(side*0.095,1.69,0.207); player.add(eyeWhite);
+    const pupil = new THREE.Mesh(new THREE.BoxGeometry(0.032,0.042,0.012), material('player pupils',0x25242a));
+    pupil.position.set(side*0.095,1.69,0.226); player.add(pupil);
+    const brow = new THREE.Mesh(new THREE.BoxGeometry(0.09,0.025,0.025), material('player eyebrows',0x4a342d));
+    brow.position.set(side*0.095,1.75,0.211); player.add(brow);
+  }
+  const nose = new THREE.Mesh(new THREE.BoxGeometry(0.06,0.075,0.075), material('player nose',0xd39a73));
+  nose.position.set(0,1.63,0.235); player.add(nose);
+  const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.09,0.025,0.02), material('player mouth',0x824f4a));
+  mouth.position.set(0,1.55,0.211); player.add(mouth);
   const armL = new THREE.Mesh(new THREE.BoxGeometry(0.17,0.62,0.2), material('player sleeve',0x315c8c));
   armL.position.set(-0.37,1.06,0); armL.castShadow=true; player.add(armL);
   const armR = armL.clone(); armR.position.x=0.37; player.add(armR);
+  for(const side of [-1,1]) {
+    const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.105,8,6), material('player shoulder',0x315c8c));
+    shoulder.position.set(side*0.37,1.34,0); player.add(shoulder);
+    const hand = new THREE.Mesh(new THREE.BoxGeometry(0.14,0.16,0.16), material('player hands',0xdca77f));
+    hand.position.set(side*0.37,0.72,0); player.add(hand);
+  }
   const legL = new THREE.Mesh(new THREE.BoxGeometry(0.2,0.48,0.24), material('player trousers',0x29374e));
   legL.position.set(-0.16,0.37,0); legL.castShadow=true; player.add(legL);
   const legR = legL.clone(); legR.position.x=0.16; player.add(legR);
@@ -224,14 +254,52 @@ import * as THREE from 'three';
   function nearComputer() {
     return Math.hypot(state.x - 2.55, state.z + 2.2) < 2.25;
   }
+  const pcOverlay = document.getElementById('pcOverlay');
+  const pcTitle = document.getElementById('pcTitle');
+  const pcSubtitle = document.getElementById('pcSubtitle');
+  const pcCards = document.getElementById('pcCards');
+  const pcAppWindow = document.getElementById('pcAppWindow');
+  const pcAppName = document.getElementById('pcAppName');
+  const pcAppBody = document.getElementById('pcAppBody');
+  const pcStatusText = () => 'Монеты: ' + Math.floor(state.money) + ' · Уровень: ' + state.level + ' · ПК: ' + state.pc;
+
+  function closeComputerDesktop() {
+    pcOverlay.classList.remove('show');
+    pcOverlay.setAttribute('aria-hidden','true');
+    held.clear();
+  }
+  function openComputerDesktop() {
+    closePanel();
+    pcOverlay.classList.add('show');
+    pcOverlay.setAttribute('aria-hidden','false');
+    showPcApp('home');
+    const clockLabel=document.getElementById('pcClock');
+    if(clockLabel) clockLabel.textContent='Система готова · ' + pcStatusText();
+  }
+  function showPcApp(name) {
+    pcAppWindow.hidden = name === 'home';
+    pcCards.hidden = name !== 'home';
+    if(name === 'home') {
+      pcTitle.textContent='Рабочий стол';
+      pcSubtitle.textContent='Твой компьютер включён. Выбери приложение, чтобы начать.';
+      return;
+    }
+    pcTitle.textContent='Мои приложения';
+    pcSubtitle.textContent='Компьютер работает нормально. Данные сохраняются автоматически.';
+    pcAppName.textContent = ({work:'💼 Рабочее место',web:'🌐 Внутриигровой браузер',files:'📁 Мои файлы'})[name] || 'Приложение';
+    if(name==='work') {
+      pcAppBody.innerHTML='<h3>Рабочая смена</h3><p>Выполняй работу на компьютере, зарабатывай монеты и получай опыт. Улучшенный ПК приносит больше денег.</p><p><b id="pcRewardPreview">Награда за смену: '+(8+state.pc*4)+' монет</b></p><div class="pc-progress"><span id="pcWorkProgress" style="width:0%"></span></div><button class="btn primary" id="pcDoWork" type="button">▶ Начать работу</button><p id="pcWorkStatus" class="pc-status" aria-live="polite">Готов к работе.</p>';
+    } else if(name==='web') {
+      pcAppBody.innerHTML='<h3>Браузер MiniNet</h3><p>Безопасный внутриигровой интернет. Здесь можно посмотреть состояние системы и полезные советы.</p><div class="item"><div><b>Новости комнаты</b><small>Компьютер подключён. Новых обновлений системы нет.</small></div><span>🟢</span></div><div class="item"><div><b>Совет дня</b><small>Улучшай ПК в магазине, чтобы зарабатывать больше за каждую смену.</small></div><span>💡</span></div><p class="pc-status">Статус подключения: подключено</p>';
+    } else if(name==='files') {
+      pcAppBody.innerHTML='<h3>Сведения о системе</h3><p>Сохранение игры и характеристики персонажа.</p><div class="item"><div><b>Профиль игрока</b><small>'+pcStatusText()+'</small></div><span>👤</span></div><div class="item"><div><b>Опыт</b><small>'+state.xp+' / '+(state.level*50)+' XP</small></div><span>⭐</span></div><div class="item"><div><b>Состояние сохранения</b><small>Автосохранение включено</small></div><span>💾</span></div><button class="btn primary" id="pcSaveNow" type="button">💾 Сохранить сейчас</button><p id="pcFileStatus" class="pc-status" aria-live="polite"></p>';
+    }
+  }
   function closePanel() { ui.panel.classList.remove('show'); panelMode=''; }
   function showPanel(mode) {
+    if(mode==='computer') { openComputerDesktop(); return; }
     panelMode=mode; ui.items.replaceChildren(); ui.panel.classList.add('show');
-    if(mode==='computer') {
-      ui.title.textContent='🖥️ Рабочий компьютер';
-      ui.description.textContent='Поработай за своим 3D-компьютером, получи монеты и опыт. Чем выше уровень ПК, тем больше оплата.';
-      ui.action.textContent='Начать работу'; ui.action.onclick=()=>{closePanel();work();};
-    } else if(mode==='shop') {
+    if(mode==='shop') {
       ui.title.textContent='🛒 Магазин улучшений';
       ui.description.textContent='Улучши компьютер или обустрой комнату. Всё купленное остаётся в сохранении.';
       ui.action.textContent='Закрыть магазин'; ui.action.onclick=closePanel;
@@ -283,7 +351,8 @@ import * as THREE from 'three';
   document.addEventListener('keydown',event=>{
     const key=event.key.toLowerCase();
     if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key))event.preventDefault();
-    if(key==='escape'){closePanel();return;}
+    if(key==='escape'){if(pcOverlay.classList.contains('show'))closeComputerDesktop();else closePanel();return;}
+    if(pcOverlay.classList.contains('show'))return;
     if(ui.panel.classList.contains('show'))return;
     if(key==='e'&&!event.repeat){if(nearComputer())showPanel('computer');else notify('Подойди к столу и нажми E.');return;}
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key))held.add(key);
@@ -297,6 +366,27 @@ import * as THREE from 'three';
     button.addEventListener('pointerup',release);button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);
   });
   document.getElementById('workBtn').addEventListener('click',()=>{if(nearComputer())showPanel('computer');else notify('Подойди к столу и нажми E.');});
+  document.getElementById('pcClose').addEventListener('click',closeComputerDesktop);
+  document.getElementById('pcAppHome').addEventListener('click',()=>showPcApp('home'));
+  document.querySelectorAll('[data-pc-app]').forEach(button=>button.addEventListener('click',()=>showPcApp(button.dataset.pcApp)));
+  document.getElementById('pcAppBody').addEventListener('click',event=>{
+    const button=event.target.closest('button'); if(!button)return;
+    if(button.id==='pcDoWork') {
+      const status=document.getElementById('pcWorkStatus');
+      const progress=document.getElementById('pcWorkProgress');
+      button.disabled=true; status.textContent='Выполняется работа...'; progress.style.width='35%';
+      setTimeout(()=>{
+        if(!pcOverlay.classList.contains('show'))return;
+        progress.style.width='100%'; work();
+        status.textContent='Смена завершена! Получено '+(8+state.pc*4)+' монет. '+pcStatusText();
+        button.disabled=false;
+        const clockLabel=document.getElementById('pcClock'); if(clockLabel)clockLabel.textContent='Система готова · '+pcStatusText();
+        const reward=document.getElementById('pcRewardPreview');if(reward)reward.textContent='Награда за смену: '+(8+state.pc*4)+' монет';
+      },450);
+    } else if(button.id==='pcSaveNow') {
+      save(false);const status=document.getElementById('pcFileStatus');if(status)status.textContent='Сохранение выполнено успешно.';
+    }
+  });
   document.getElementById('cameraBtn').addEventListener('click',()=>{firstPerson=!firstPerson;document.getElementById('cameraBtn').textContent=firstPerson?'🎥 Третье лицо':'👁️ Первое лицо';document.getElementById('cameraBtn').setAttribute('aria-pressed',String(firstPerson));if(firstPerson){cameraYaw=player.rotation.y;cameraPitch=-0.04;notify('Первое лицо: проведи пальцем или мышью по игровому экрану, чтобы осмотреться.');}else notify('Включён вид от третьего лица.');});
   document.getElementById('fullscreenBtn').addEventListener('click',async()=>{const immersive=!document.body.classList.contains('immersive');document.body.classList.toggle('immersive',immersive);if(immersive){try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(error){}document.getElementById('fullscreenBtn').textContent='↙ Выйти из полного экрана';}else{if(document.fullscreenElement&&document.exitFullscreen){try{await document.exitFullscreen();}catch(error){}}document.getElementById('fullscreenBtn').textContent='⛶ Полный экран';}setTimeout(resize,80);});
   document.addEventListener('fullscreenchange',()=>{setTimeout(resize,80);});
