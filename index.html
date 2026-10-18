@@ -9,7 +9,7 @@
   <style>
     :root{color-scheme:dark;--panel:#202944;--line:#53658c;--gold:#ffd36a;--mint:#8df0c0}
     *{box-sizing:border-box}
-    body{margin:0;background:#101526;color:#f4f5ff;font-family:system-ui,Segoe UI,sans-serif;min-height:100vh;padding:12px}
+    body{margin:0;background:#101526;color:#f4f5ff;font-family:system-ui,Segoe UI,sans-serif;min-height:100vh;padding:12px} body.immersive{padding:0;overflow:hidden}
     .app{width:min(100%,1100px);margin:auto}
     header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 10px}
     h1{font-size:clamp(20px,4vw,30px);margin:0;color:#fff0bd;letter-spacing:.5px}
@@ -19,7 +19,7 @@
     .xp-wrap{height:7px;background:#26324d;border-radius:8px;overflow:hidden;margin:0 0 9px}
     #xpBar{height:100%;width:0;background:#8df0c0;transition:width .15s}
     .stage{position:relative;border:4px solid #52648a;border-radius:12px;overflow:hidden;background:#202944;box-shadow:0 12px 35px #0007}
-    #game{display:block;width:100%;height: min(65vh,650px);min-height:320px;touch-action:none}
+    #game{display:block;width:100%;height:min(78vh,900px);min-height:320px;touch-action:none} body.immersive .app{width:100%;margin:0} body.immersive header,body.immersive .badge,body.immersive .xp-wrap,body.immersive .app>.pill,body.immersive .hint,body.immersive .notice{display:none!important} body.immersive .stage{position:fixed;inset:0;z-index:100;border:0;border-radius:0} body.immersive #game{width:100%;height:100%;min-height:0} body.immersive .app>.controls{position:fixed;z-index:102;top:10px;left:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none} body.immersive .app>.controls .btn{pointer-events:auto;padding:8px 10px;font-size:12px} body.immersive .mobilepad{display:grid;position:fixed;z-index:103;left:14px;bottom:14px;margin:0;opacity:.88} body.immersive .mobilepad button{background:#202944d9} body.immersive .stage .panel{z-index:110}
     .hint{background:#202944;border:1px solid #3a496b;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px;line-height:1.5}
     .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .btn{background:#35456a;color:#fff;border:2px solid #657aa6;border-radius:9px;padding:10px 13px;font:700 14px system-ui;cursor:pointer;box-shadow:0 3px 0 #172039;touch-action:manipulation}
@@ -69,11 +69,13 @@
         </div>
       </div>
     </section>
-    <p class="hint"><b>Как играть:</b> ходи на <b>WASD</b> или <b>стрелках</b>. Подойди к столу и нажми <b>E</b> или кнопку «Работать за ПК». Работа приносит деньги и опыт; за новые уровни дают бонусные монеты. Улучшай компьютер и комнату в магазине. Прогресс сохраняется автоматически. Игра использует 3D-графику в стиле low-poly, похожую на игры 64-битной эпохи.</p>
+    <p class="hint"><b>Как играть:</b> ходи на <b>WASD</b> или <b>стрелках</b>. В режиме от первого лица поворачивай камеру мышью или проводи пальцем по экрану. Подойди к столу и нажми <b>E</b> или кнопку «Работать за ПК». Работа приносит деньги и опыт; за новые уровни дают бонусные монеты. Улучшай компьютер и комнату в магазине. Прогресс сохраняется автоматически. Игра использует 3D-графику в стиле low-poly, похожую на игры 64-битной эпохи.</p>
     <div class="controls">
       <button class="btn primary" id="workBtn" type="button">🖥️ Работать за ПК (E)</button>
       <button class="btn goldbtn" id="shopBtn" type="button">🛒 Магазин</button>
       <button class="btn" id="decorBtn" type="button">🪴 Обновить комнату</button>
+      <button class="btn" id="cameraBtn" type="button" aria-pressed="false">👁️ Первое лицо</button>
+      <button class="btn" id="fullscreenBtn" type="button">⛶ Полный экран</button>
       <button class="btn" id="saveBtn" type="button">💾 Сохранить</button>
       <button class="btn" id="resetBtn" type="button">↻ Новая игра</button>
     </div>
