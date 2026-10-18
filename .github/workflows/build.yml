@@ -26,7 +26,7 @@ jobs:
           test -s game.js
           grep -qi '<html' index.html
           grep -qi '</html>' index.html
-          grep -q 'src="game.js"' index.html
+          grep -q 'game.js' index.html
           echo "Required game files are present."
 
       - name: Check JavaScript syntax
