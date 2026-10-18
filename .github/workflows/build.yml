@@ -30,7 +30,7 @@ jobs:
           echo "Required game files are present."
 
       - name: Check JavaScript syntax
-        run: node --check game.js
+        run: node --input-type=module --check < game.js
 
       - name: Package game
         run: |
