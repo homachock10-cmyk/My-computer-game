@@ -38,6 +38,30 @@
     .item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#151e34;border:1px solid #44577f;border-radius:9px;padding:10px}
     .item small{display:block;color:#bdc9e5;margin-top:3px;line-height:1.4}
     .notice{min-height:24px;color:var(--mint);font-weight:700;margin:8px 0}
+
+    .pc-overlay{display:none;position:fixed;inset:0;z-index:300;background:#080d19;color:#eef4ff;font-family:system-ui,Segoe UI,sans-serif}
+    .pc-overlay.show{display:flex;flex-direction:column}
+    .pc-topbar{height:54px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;background:#151e32;border-bottom:1px solid #3b4b6d}
+    .pc-brand{font-weight:800;letter-spacing:.4px}.pc-top-right{display:flex;align-items:center;gap:12px}
+    .pc-close{border:1px solid #64769a;border-radius:9px;background:#293956;color:white;font-weight:700;padding:8px 12px}
+    .pc-workspace{display:grid;grid-template-columns:78px 1fr;min-height:0;flex:1;background:radial-gradient(ellipse at 70% 20%,#2a6476 0,#18344e 36%,#11192e 100%)}
+    .pc-sidebar{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 6px;background:#0e1729a8;border-right:1px solid #52658a55}
+    .pc-sidebtn{width:62px;min-height:58px;border:1px solid #8aa6c644;border-radius:12px;background:#ffffff0c;color:#eef4ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px}
+    .pc-sidebtn span{font-size:22px}
+    .pc-main{min-width:0;overflow:auto;padding:clamp(14px,3vw,32px)}
+    .pc-welcome{max-width:850px;margin:0 auto}
+    .pc-welcome h2{font-size:clamp(26px,4vw,42px);margin:0 0 6px;color:#fff2c6}
+    .pc-welcome p{color:#cfdef5;margin:0 0 20px}
+    .pc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px}
+    .pc-card{min-height:150px;text-align:left;padding:18px;border:1px solid #91b4db55;border-radius:16px;background:#152641c9;color:#f4f7ff;box-shadow:0 10px 25px #050a1680}
+    .pc-card:active{transform:scale(.98)}.pc-card .icon{display:block;font-size:34px;margin-bottom:12px}.pc-card b{display:block;font-size:16px}.pc-card small{display:block;color:#c0d2ec;margin-top:5px;line-height:1.4}
+    .pc-appwindow{margin-top:18px;border:1px solid #8eacd566;border-radius:14px;background:#111b2df2;overflow:hidden}
+    .pc-apphead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 15px;background:#253652;font-weight:800}
+    .pc-appbody{padding:18px;line-height:1.6}.pc-appbody h3{margin:0 0 8px;color:#fff0bd}
+    .pc-progress{height:10px;background:#2b3b55;border-radius:8px;overflow:hidden;margin:12px 0}.pc-progress span{display:block;height:100%;width:0;background:#79e0b1;transition:width .25s}
+    .pc-status{color:#9ceac4;font-weight:700;min-height:24px}
+    @media(max-width:600px){.pc-topbar{height:48px;padding:7px 10px}.pc-workspace{grid-template-columns:60px 1fr}.pc-sidebtn{width:48px;min-height:52px;font-size:10px}.pc-main{padding:12px}.pc-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.pc-card{min-height:125px;padding:12px}.pc-card .icon{font-size:28px;margin-bottom:7px}.pc-top-right #pcClock{display:none}}
+
     .badge{display:inline-block;color:#d5e5ff;background:#273451;border:1px solid #51668d;padding:4px 8px;border-radius:8px;font-size:12px;margin:0 0 8px}
     @media(max-width:600px){body{padding:7px}.hint{font-size:13px}.btn{padding:9px 10px}.pill{font-size:12px;padding:6px 8px}.dialog{padding:12px}#game{height:55vh;min-height:300px}}
   </style>
@@ -65,6 +89,35 @@
           <div class="controls">
             <button class="btn primary" id="mainAction" type="button">Начать работу</button>
             <button class="btn" id="closePanel" type="button">Закрыть (Esc)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="pcOverlay" class="pc-overlay" aria-label="Рабочий стол компьютера" aria-hidden="true">
+      <div class="pc-topbar">
+        <div class="pc-brand">🖥️ MY PC <span style="color:#8eddbb">OS</span></div>
+        <div class="pc-top-right"><span id="pcClock">Рабочая станция · готова</span><button id="pcClose" class="pc-close" type="button">✕ Выйти</button></div>
+      </div>
+      <div class="pc-workspace">
+        <nav class="pc-sidebar" aria-label="Приложения компьютера">
+          <button class="pc-sidebtn" data-pc-app="home" type="button"><span>🏠</span>Домой</button>
+          <button class="pc-sidebtn" data-pc-app="work" type="button"><span>💼</span>Работа</button>
+          <button class="pc-sidebtn" data-pc-app="web" type="button"><span>🌐</span>Интернет</button>
+          <button class="pc-sidebtn" data-pc-app="files" type="button"><span>📁</span>Файлы</button>
+        </nav>
+        <div class="pc-main">
+          <div class="pc-welcome">
+            <h2 id="pcTitle">Рабочий стол</h2>
+            <p id="pcSubtitle">Твой компьютер включён. Выбери приложение, чтобы начать.</p>
+            <div id="pcCards" class="pc-cards">
+              <button class="pc-card" data-pc-app="work" type="button"><span class="icon">💼</span><b>Работа</b><small>Выполняй смены и получай монеты и опыт.</small></button>
+              <button class="pc-card" data-pc-app="web" type="button"><span class="icon">🌐</span><b>Интернет</b><small>Открой внутриигровой браузер и новости.</small></button>
+              <button class="pc-card" data-pc-app="files" type="button"><span class="icon">📁</span><b>Мои файлы</b><small>Посмотри данные персонажа и компьютера.</small></button>
+            </div>
+            <div id="pcAppWindow" class="pc-appwindow" hidden>
+              <div class="pc-apphead"><span id="pcAppName">Приложение</span><button id="pcAppHome" class="pc-close" type="button">← На рабочий стол</button></div>
+              <div id="pcAppBody" class="pc-appbody"></div>
+            </div>
           </div>
         </div>
       </div>
