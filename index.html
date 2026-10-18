@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#151a2e">
-  <meta name="description" content="Пиксельная игра про свою комнату, компьютер, работу и улучшения.">
-  <title>My Computer Game</title>
+  <meta name="description" content="My Computer Game — low-poly 3D-симулятор комнаты в стиле игр 64-битной эпохи.">
+  <title>My Computer Game — 3D</title>
   <style>
     :root{color-scheme:dark;--panel:#202944;--line:#53658c;--gold:#ffd36a;--mint:#8df0c0}
     *{box-sizing:border-box}
-    body{margin:0;background:#101526;color:#f4f5ff;font-family:system-ui,Segoe UI,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:12px}
-    .app{width:min(100%,1000px)}
+    body{margin:0;background:#101526;color:#f4f5ff;font-family:system-ui,Segoe UI,sans-serif;min-height:100vh;padding:12px}
+    .app{width:min(100%,1100px);margin:auto}
     header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 10px}
     h1{font-size:clamp(20px,4vw,30px);margin:0;color:#fff0bd;letter-spacing:.5px}
     .stats{display:flex;gap:8px;flex-wrap:wrap}
@@ -18,8 +18,8 @@
     .gold{color:var(--gold)}
     .xp-wrap{height:7px;background:#26324d;border-radius:8px;overflow:hidden;margin:0 0 9px}
     #xpBar{height:100%;width:0;background:#8df0c0;transition:width .15s}
-    .stage{position:relative;border:4px solid #52648a;border-radius:12px;overflow:hidden;background:#222;box-shadow:0 12px 35px #0007}
-    canvas{display:block;width:100%;height:auto;image-rendering:pixelated;touch-action:manipulation}
+    .stage{position:relative;border:4px solid #52648a;border-radius:12px;overflow:hidden;background:#202944;box-shadow:0 12px 35px #0007}
+    #game{display:block;width:100%;height: min(65vh,650px);min-height:320px;touch-action:none}
     .hint{background:#202944;border:1px solid #3a496b;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px;line-height:1.5}
     .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .btn{background:#35456a;color:#fff;border:2px solid #657aa6;border-radius:9px;padding:10px 13px;font:700 14px system-ui;cursor:pointer;box-shadow:0 3px 0 #172039;touch-action:manipulation}
@@ -38,23 +38,25 @@
     .item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#151e34;border:1px solid #44577f;border-radius:9px;padding:10px}
     .item small{display:block;color:#bdc9e5;margin-top:3px;line-height:1.4}
     .notice{min-height:24px;color:var(--mint);font-weight:700;margin:8px 0}
-    @media(max-width:600px){body{padding:7px}.mobilepad{display:grid}.hint{font-size:13px}.btn{padding:9px 10px}.pill{font-size:12px;padding:6px 8px}.dialog{padding:12px}}
+    .badge{display:inline-block;color:#d5e5ff;background:#273451;border:1px solid #51668d;padding:4px 8px;border-radius:8px;font-size:12px;margin:0 0 8px}
+    @media(max-width:600px){body{padding:7px}.mobilepad{display:grid}.hint{font-size:13px}.btn{padding:9px 10px}.pill{font-size:12px;padding:6px 8px}.dialog{padding:12px}#game{height:55vh;min-height:300px}}
   </style>
 </head>
 <body>
   <main class="app">
     <header>
-      <h1>🖥️ My Computer Game</h1>
+      <h1>🖥️ My Computer Game 3D</h1>
       <div class="stats">
         <div class="pill">💰 <span id="money" class="gold">0</span></div>
         <div class="pill">⭐ Уровень <span id="level">1</span></div>
         <div class="pill">🖥️ ПК <span id="pcLevel">1</span></div>
       </div>
     </header>
+    <div class="badge">LOW-POLY 3D · В духе игр 64-битной эпохи</div>
     <div class="xp-wrap" aria-label="Опыт персонажа"><div id="xpBar"></div></div>
     <div class="pill" style="display:inline-block;margin-bottom:8px">Опыт: <span id="xp">0 / 50</span></div>
-    <section class="stage" aria-label="Игровая комната">
-      <canvas id="game" width="800" height="500" aria-label="Пиксельная комната с персонажем и компьютером"></canvas>
+    <section class="stage" aria-label="Трёхмерная игровая комната">
+      <div id="game" role="img" aria-label="3D-комната с персонажем, кроватью и компьютером"></div>
       <div id="panel" class="panel" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
         <div class="dialog">
           <h2 id="dialogTitle">Компьютер</h2>
@@ -67,7 +69,7 @@
         </div>
       </div>
     </section>
-    <p class="hint"><b>Как играть:</b> ходи на <b>WASD</b> или <b>стрелках</b>. Подойди к компьютеру и нажми <b>E</b>, чтобы работать. Работа приносит деньги и опыт; за новые уровни дают бонусные монеты. Улучшай компьютер и комнату в магазине. Прогресс сохраняется автоматически на этом устройстве.</p>
+    <p class="hint"><b>Как играть:</b> ходи на <b>WASD</b> или <b>стрелках</b>. Подойди к столу и нажми <b>E</b> или кнопку «Работать за ПК». Работа приносит деньги и опыт; за новые уровни дают бонусные монеты. Улучшай компьютер и комнату в магазине. Прогресс сохраняется автоматически. Игра использует 3D-графику в стиле low-poly, похожую на игры 64-битной эпохи.</p>
     <div class="controls">
       <button class="btn primary" id="workBtn" type="button">🖥️ Работать за ПК (E)</button>
       <button class="btn goldbtn" id="shopBtn" type="button">🛒 Магазин</button>
@@ -77,12 +79,15 @@
     </div>
     <div class="notice" id="notice" aria-live="polite"></div>
     <div class="mobilepad" aria-label="Управление персонажем">
-      <span></span><button class="btn" data-move="up" type="button" aria-label="Вверх">▲</button><span></span>
+      <span></span><button class="btn" data-move="up" type="button" aria-label="Вперёд">▲</button><span></span>
       <button class="btn" data-move="left" type="button" aria-label="Влево">◀</button>
-      <button class="btn" data-move="down" type="button" aria-label="Вниз">▼</button>
+      <button class="btn" data-move="down" type="button" aria-label="Назад">▼</button>
       <button class="btn" data-move="right" type="button" aria-label="Вправо">▶</button>
     </div>
   </main>
-  <script src="game.js" defer></script>
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js"}}
+  </script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>
