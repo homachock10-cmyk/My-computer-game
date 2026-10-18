@@ -23,6 +23,11 @@ import * as THREE from 'three';
   scene.fog = new THREE.Fog(0x9ebed0, 17, 32);
   const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
   camera.position.set(5, 8, 9);
+  let firstPerson = false;
+  let cameraYaw = 0;
+  let cameraPitch = -0.08;
+  let draggingLook = false;
+  let lastPointerX = 0, lastPointerY = 0;
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
   renderer.shadowMap.enabled = true;
@@ -265,13 +270,14 @@ import * as THREE from 'three';
   function movePlayer(dx,dz,delta) {
     if(ui.panel.classList.contains('show'))return;
     const len=Math.hypot(dx,dz)||1;dx/=len;dz/=len;
+    if(firstPerson){const forwardX=-Math.sin(cameraYaw),forwardZ=-Math.cos(cameraYaw);const rightX=Math.cos(cameraYaw),rightZ=-Math.sin(cameraYaw);const worldX=rightX*dx+forwardX*(-dz);const worldZ=rightZ*dx+forwardZ*(-dz);dx=worldX;dz=worldZ;}
     state.x=Math.max(-5.25,Math.min(5.25,state.x+dx*3.3*delta));
     state.z=Math.max(-4.1,Math.min(4.1,state.z+dz*3.3*delta));
     // Basic furniture collision so the character does not walk through the bed or desk.
     if(state.x < -2.35 && state.z < 0.15 && state.z > -3.65) { state.x = -2.35; }
     if(state.x > 0.55 && state.x < 4.75 && state.z < -1.35 && state.z > -3.6) { state.z = -1.25; }
     player.position.set(state.x,0,state.z);
-    player.rotation.y=Math.atan2(dx,dz);
+    if(!firstPerson) player.rotation.y=Math.atan2(dx,dz);
   }
 
   document.addEventListener('keydown',event=>{
@@ -291,6 +297,13 @@ import * as THREE from 'three';
     button.addEventListener('pointerup',release);button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);
   });
   document.getElementById('workBtn').addEventListener('click',()=>{if(nearComputer())showPanel('computer');else notify('Подойди к столу и нажми E.');});
+  document.getElementById('cameraBtn').addEventListener('click',()=>{firstPerson=!firstPerson;document.getElementById('cameraBtn').textContent=firstPerson?'🎥 Третье лицо':'👁️ Первое лицо';document.getElementById('cameraBtn').setAttribute('aria-pressed',String(firstPerson));if(firstPerson){cameraYaw=player.rotation.y;cameraPitch=-0.04;notify('Первое лицо: проведи пальцем или мышью по игровому экрану, чтобы осмотреться.');}else notify('Включён вид от третьего лица.');});
+  document.getElementById('fullscreenBtn').addEventListener('click',async()=>{const immersive=!document.body.classList.contains('immersive');document.body.classList.toggle('immersive',immersive);if(immersive){try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(error){}document.getElementById('fullscreenBtn').textContent='↙ Выйти из полного экрана';}else{if(document.fullscreenElement&&document.exitFullscreen){try{await document.exitFullscreen();}catch(error){}}document.getElementById('fullscreenBtn').textContent='⛶ Полный экран';}setTimeout(resize,80);});
+  document.addEventListener('fullscreenchange',()=>{setTimeout(resize,80);});
+  renderer.domElement.addEventListener('pointerdown',event=>{if(!firstPerson||ui.panel.classList.contains('show'))return;draggingLook=true;lastPointerX=event.clientX;lastPointerY=event.clientY;if(renderer.domElement.setPointerCapture)renderer.domElement.setPointerCapture(event.pointerId);});
+  renderer.domElement.addEventListener('pointermove',event=>{if(!draggingLook||!firstPerson)return;const dx=event.clientX-lastPointerX,dy=event.clientY-lastPointerY;lastPointerX=event.clientX;lastPointerY=event.clientY;cameraYaw-=dx*0.006;cameraPitch=Math.max(-1.05,Math.min(0.8,cameraPitch-dy*0.0045));});
+  const stopLook=()=>{draggingLook=false;};renderer.domElement.addEventListener('pointerup',stopLook);renderer.domElement.addEventListener('pointercancel',stopLook);renderer.domElement.addEventListener('lostpointercapture',stopLook);
+
   document.getElementById('shopBtn').addEventListener('click',()=>showPanel('shop'));
   document.getElementById('decorBtn').addEventListener('click',()=>showPanel('decor'));
   document.getElementById('saveBtn').addEventListener('click',()=>save(true));
@@ -331,9 +344,14 @@ import * as THREE from 'three';
       if(held.has('arrowdown')||held.has('s'))dz+=1;
       if(dx||dz)movePlayer(dx,dz,delta);
     }
-    const target=new THREE.Vector3(state.x+4.8,6.6,state.z+7.2);
-    camera.position.lerp(target,0.075);
-    camera.lookAt(state.x,0.8,state.z-0.35);
+    if(firstPerson){
+      const eye=new THREE.Vector3(state.x,1.55,state.z);camera.position.lerp(eye,0.22);
+      const lookTarget=new THREE.Vector3(state.x-Math.sin(cameraYaw)*8,1.55+Math.sin(cameraPitch)*8,state.z-Math.cos(cameraYaw)*8);camera.lookAt(lookTarget);player.rotation.y=cameraYaw;
+    }else{
+      const target=new THREE.Vector3(state.x+4.8,6.6,state.z+7.2);
+      camera.position.lerp(target,0.075);
+      camera.lookAt(state.x,0.8,state.z-0.35);
+    }
     const moving=held.size>0&&!ui.panel.classList.contains('show');
     if(moving){const t=performance.now()*0.012;legL.rotation.x=Math.sin(t)*0.48;legR.rotation.x=-Math.sin(t)*0.48;armL.rotation.x=-Math.sin(t)*0.35;armR.rotation.x=Math.sin(t)*0.35;}
     else {legL.rotation.x=0;legR.rotation.x=0;armL.rotation.x=0;armR.rotation.x=0;}
