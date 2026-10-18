@@ -1,0 +1,42 @@
+name: Build My Computer Game
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Check and package game
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: Check game files
+        run: |
+          test -f index.html
+          test -s index.html
+          grep -qi '<html' index.html
+          grep -qi '</html>' index.html
+          echo "Game HTML file exists and has basic HTML structure."
+
+      - name: Package game
+        run: |
+          mkdir -p dist
+          cp index.html dist/index.html
+          test -s dist/index.html
+
+      - name: Save build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-computer-game-build
+          path: dist/
+          if-no-files-found: error
