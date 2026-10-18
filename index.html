@@ -1,79 +1,88 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#151a2e">
-<title>My Computer Game</title>
-<style>
-:root{color-scheme:dark;--panel:#202944;--line:#53658c;--gold:#ffd36a;--mint:#8df0c0}
-*{box-sizing:border-box}body{margin:0;background:#101526;color:#f4f5ff;font-family:system-ui,Segoe UI,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:12px}
-.app{width:min(100%,1000px)}header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 10px}h1{font-size:clamp(20px,4vw,30px);margin:0;color:#fff0bd;letter-spacing:.5px}.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{background:#202944;border:2px solid #3a496b;border-radius:10px;padding:7px 11px;font-weight:700;font-size:14px}.gold{color:var(--gold)}.stage{position:relative;border:4px solid #52648a;border-radius:12px;overflow:hidden;background:#222;box-shadow:0 12px 35px #0007}canvas{display:block;width:100%;height:auto;image-rendering:pixelated;touch-action:none}.hint{background:#202944;border:1px solid #3a496b;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px;line-height:1.45}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{background:#35456a;color:#fff;border:2px solid #657aa6;border-radius:9px;padding:10px 13px;font:700 14px system-ui;cursor:pointer;box-shadow:0 3px 0 #172039;touch-action:manipulation}.btn:active{transform:translateY(2px);box-shadow:none}.btn.primary{background:#24795e;border-color:#69cfa9}.btn.goldbtn{background:#8a6322;border-color:#d4ad58}.mobilepad{display:none;grid-template-columns:repeat(3,52px);gap:5px;margin-top:12px;justify-content:center}.mobilepad button{height:45px;padding:0;font-size:20px}.panel{position:absolute;inset:0;background:#101526dc;display:none;align-items:center;justify-content:center;padding:14px}.panel.show{display:flex}.dialog{width:min(100%,450px);background:#202944;border:3px solid #7185b0;border-radius:14px;padding:18px;box-shadow:0 10px 35px #0009}.dialog h2{margin:0 0 8px;color:#fff0bd}.dialog p{line-height:1.5}.items{display:grid;gap:8px;margin:12px 0}.item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#151e34;border:1px solid #44577f;border-radius:9px;padding:10px}.item small{display:block;color:#bdc9e5;margin-top:3px}.notice{min-height:24px;color:var(--mint);font-weight:700;margin:8px 0}@media(max-width:600px){body{padding:7px}.mobilepad{display:grid}.hint{font-size:13px}.btn{padding:9px 10px}.pill{font-size:12px;padding:6px 8px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151a2e">
+  <meta name="description" content="Пиксельная игра про свою комнату, компьютер, работу и улучшения.">
+  <title>My Computer Game</title>
+  <style>
+    :root{color-scheme:dark;--panel:#202944;--line:#53658c;--gold:#ffd36a;--mint:#8df0c0}
+    *{box-sizing:border-box}
+    body{margin:0;background:#101526;color:#f4f5ff;font-family:system-ui,Segoe UI,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:12px}
+    .app{width:min(100%,1000px)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 10px}
+    h1{font-size:clamp(20px,4vw,30px);margin:0;color:#fff0bd;letter-spacing:.5px}
+    .stats{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{background:#202944;border:2px solid #3a496b;border-radius:10px;padding:7px 11px;font-weight:700;font-size:14px}
+    .gold{color:var(--gold)}
+    .xp-wrap{height:7px;background:#26324d;border-radius:8px;overflow:hidden;margin:0 0 9px}
+    #xpBar{height:100%;width:0;background:#8df0c0;transition:width .15s}
+    .stage{position:relative;border:4px solid #52648a;border-radius:12px;overflow:hidden;background:#222;box-shadow:0 12px 35px #0007}
+    canvas{display:block;width:100%;height:auto;image-rendering:pixelated;touch-action:manipulation}
+    .hint{background:#202944;border:1px solid #3a496b;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px;line-height:1.5}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .btn{background:#35456a;color:#fff;border:2px solid #657aa6;border-radius:9px;padding:10px 13px;font:700 14px system-ui;cursor:pointer;box-shadow:0 3px 0 #172039;touch-action:manipulation}
+    .btn:active{transform:translateY(2px);box-shadow:none}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .btn.primary{background:#24795e;border-color:#69cfa9}
+    .btn.goldbtn{background:#8a6322;border-color:#d4ad58}
+    .mobilepad{display:none;grid-template-columns:repeat(3,52px);gap:5px;margin-top:12px;justify-content:center}
+    .mobilepad button{height:45px;padding:0;font-size:20px;user-select:none}
+    .panel{position:absolute;inset:0;background:#101526dc;display:none;align-items:center;justify-content:center;padding:14px;overflow:auto}
+    .panel.show{display:flex}
+    .dialog{width:min(100%,450px);max-height:100%;overflow:auto;background:#202944;border:3px solid #7185b0;border-radius:14px;padding:18px;box-shadow:0 10px 35px #0009}
+    .dialog h2{margin:0 0 8px;color:#fff0bd;font-size:22px}
+    .dialog p{line-height:1.5;margin:0 0 12px}
+    .items{display:grid;gap:8px;margin:12px 0}
+    .item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#151e34;border:1px solid #44577f;border-radius:9px;padding:10px}
+    .item small{display:block;color:#bdc9e5;margin-top:3px;line-height:1.4}
+    .notice{min-height:24px;color:var(--mint);font-weight:700;margin:8px 0}
+    @media(max-width:600px){body{padding:7px}.mobilepad{display:grid}.hint{font-size:13px}.btn{padding:9px 10px}.pill{font-size:12px;padding:6px 8px}.dialog{padding:12px}}
+  </style>
 </head>
 <body>
-<div class="app">
-<header><h1>🖥️ My Computer Game</h1><div class="stats"><div class="pill">💰 <span id="money" class="gold">0</span></div><div class="pill">⭐ Уровень <span id="level">1</span></div><div class="pill">🖥️ ПК <span id="pcLevel">1</span></div></div></header>
-<div class="stage"><canvas id="game" width="800" height="500" aria-label="Пиксельная комната"></canvas><div id="panel" class="panel"><div class="dialog"><h2 id="dialogTitle">Компьютер</h2><p id="dialogText"></p><div id="dialogItems" class="items"></div><div class="controls"><button class="btn primary" id="mainAction">Начать работу</button><button class="btn" id="closePanel">Закрыть (Esc)</button></div></div></div></div>
-<div class="hint"><b>Как играть:</b> ходи на <b>WASD</b> или <b>← ↑ ↓ →</b>. Подойди к компьютеру и нажми <b>E</b>, чтобы работать. Работа приносит деньги и опыт. Нажми <b>Магазин</b>, чтобы улучшить ПК и комнату. Прогресс сохраняется автоматически на этом устройстве.</div>
-<div class="controls"><button class="btn primary" id="workBtn">🖥️ Работать за ПК (E)</button><button class="btn goldbtn" id="shopBtn">🛒 Магазин</button><button class="btn" id="decorBtn">🪴 Обновить комнату</button><button class="btn" id="saveBtn">💾 Сохранить</button><button class="btn" id="resetBtn">↻ Новая игра</button></div>
-<div class="notice" id="notice" aria-live="polite"></div>
-<div class="mobilepad" aria-label="Управление"><span></span><button class="btn" data-move="up">▲</button><span></span><button class="btn" data-move="left">◀</button><button class="btn" data-move="down">▼</button><button class="btn" data-move="right">▶</button></div>
-</div>
-<script>
-(()=>{
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-ctx.imageSmoothingEnabled=false;
-const $=id=>document.getElementById(id);
-const defaults={x:365,y:355,money:0,xp:0,level:1,pc:1,room:0,decor:0};
-let state={...defaults};let keys={};let panelMode='';
-try{const saved=JSON.parse(localStorage.getItem('myComputerGameSave'));if(saved)state={...defaults,...saved}}catch(e){}
-const colors=[['#b6a1c9','#6c5b83','#e6d5bd'],['#9dc6b4','#567d78','#d5c5a5'],['#a7b9dc','#586c9b','#d9d7ef']];
-function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
-function text(t,x,y,size=14,color='#fff'){ctx.fillStyle=color;ctx.font='bold '+size+'px monospace';ctx.fillText(t,x,y)}
-function draw(){
-const pal=colors[state.room%colors.length];
-rect(0,0,800,500,'#2b263b');rect(0,0,800,325,pal[0]);rect(0,0,800,330,pal[1]);
-for(let x=0;x<800;x+=64){rect(x,0,3,325,'#ffffff14');}
-rect(0,320,800,180,'#8c624b');for(let y=330;y<500;y+=35){rect(0,y,800,2,'#6d493e');for(let x=(y%70);x<800;x+=110)rect(x,y,2,35,'#6d493e')}
-rect(0,310,800,13,'#d9b48a');
-rect(45,55,170,125,'#423c58');rect(53,63,154,109,'#92c8e8');rect(128,63,5,109,'#423c58');rect(53,114,154,5,'#423c58');rect(48,180,165,8,'#d7bd91');rect(58,188,10,18,'#6c5b83');rect(193,188,10,18,'#6c5b83');
-rect(74,81,45,20,'#dff6ff');rect(145,128,38,24,'#dff6ff');rect(142,69,8,38,'#e9d9a0');
-rect(0,205,800,7,'#ffffff10');
-if(state.decor>0){rect(675,235,70,65,'#694b35');rect(683,245,54,48,'#3c6c53');rect(700,210,18,38,'#478a59');rect(685,224,19,24,'#5da56a');rect(714,220,20,29,'#72b779')}
-if(state.decor>1){rect(260,80,65,100,'#d7c69b');rect(268,88,49,84,'#334e62');rect(274,94,37,72,'#78a6b9');rect(287,94,5,72,'#334e62');}
-if(state.decor>2){rect(600,365,135,80,'#9b7b54');rect(610,375,115,60,'#e4d1a8');rect(621,385,93,40,'#b7a0d0');}
-// bed
-rect(42,250,180,110,'#514b65');rect(49,258,166,94,'#756b91');rect(49,258,166,35,'#f0d8ba');rect(55,263,62,24,'#b6cde1');rect(127,263,78,24,'#b6cde1');rect(49,293,166,59,'#8476a6');rect(49,320,166,5,'#665779');
-// desk and computer
-rect(435,245,280,18,'#e3b67d');rect(455,263,15,100,'#77513b');rect(683,263,15,100,'#77513b');rect(485,215,145,32,'#292e43');rect(494,170,128,76,'#151a2b');rect(502,178,112,57,state.pc>2?'#71d5c0':'#6e9eb6');rect(509,185,98,42,'#243b56');rect(515,192,24,3,'#c5f6e9');rect(515,200,65,3,'#c5f6e9');rect(515,208,48,3,'#c5f6e9');rect(553,247,12,18,'#adb9c8');rect(530,264,60,5,'#343b52');rect(500,270,112,9,'#c4d2db');rect(535,280,42,5,'#7a879a');
-rect(635,220,30,25,'#e7e9ed');rect(640,225,20,15,'#a3bac9');rect(641,226,18,3,'#d8f9ef');
-// lamp
-rect(739,188,8,58,'#d8c28e');rect(718,183,48,9,'#d8c28e');rect(708,179,67,8,'#ffe6a0');rect(735,246,18,5,'#665779');
-// player shadow and pixel person
-rect(state.x-12,state.y+25,26,7,'#493a3b');rect(state.x-10,state.y-13,20,23,'#dba67c');rect(state.x-13,state.y-18,26,10,'#493b35');rect(state.x-15,state.y-9,30,8,'#493b35');rect(state.x-11,state.y-4,22,12,'#dba67c');rect(state.x-13,state.y+8,26,23,'#426c9d');rect(state.x-18,state.y+10,7,19,'#dba67c');rect(state.x+11,state.y+10,7,19,'#dba67c');rect(state.x-11,state.y+30,9,13,'#293750');rect(state.x+3,state.y+30,9,13,'#293750');rect(state.x-13,state.y+42,12,5,'#202335');rect(state.x+2,state.y+42,12,5,'#202335');
-if(Math.abs(state.x-555)<140&&Math.abs(state.y-280)<125){rect(466,133,178,24,'#202944');text('E — использовать ПК',474,150,13,'#fff0bd')}
-text('MY ROOM  /  DAY 1',18,28,14,'#fff0bd');
-$('money').textContent=Math.floor(state.money);$('level').textContent=state.level;$('pcLevel').textContent=state.pc;
-}
-function save(){localStorage.setItem('myComputerGameSave',JSON.stringify(state));notify('Прогресс сохранён! 💾')}
-let noticeTimer;function notify(s){$('notice').textContent=s;clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$('notice').textContent='',3000)}
-function gainXP(n){state.xp+=n;while(state.xp>=state.level*50){state.xp-=state.level*50;state.level++;state.money+=25;notify('Новый уровень! ⭐ Бонус +25 монет');}}
-function nearPC(){return Math.abs(state.x-555)<140&&Math.abs(state.y-280)<125}
-function work(){if(!nearPC()){notify('Подойди ближе к компьютеру!');return}state.money+=8+state.pc*4;gainXP(12+state.pc*2);save();notify('Работа выполнена! +' +(8+state.pc*4)+' монет 💰');draw()}
-function openPanel(mode){panelMode=mode;$('panel').classList.add('show');$('dialogItems').innerHTML='';if(mode==='computer'){$('dialogTitle').textContent='🖥️ Рабочий компьютер';$('dialogText').textContent='Выполни небольшую работу, заработай деньги и опыт. Чем лучше компьютер, тем выше оплата.';$('mainAction').textContent='Начать работу';$('mainAction').onclick=()=>{closePanel();work()};}
-else if(mode==='shop'){$('dialogTitle').textContent='🛒 Магазин улучшений';$('dialogText').textContent='Трать заработанные деньги, чтобы улучшать своё рабочее место.';$('mainAction').textContent='Готово';$('mainAction').onclick=closePanel;const upgrades=[{name:'Улучшить компьютер',desc:'Больше денег за каждую работу.',cost:60*state.pc,act:()=>{state.pc++;state.money-=60*(state.pc-1);notify('Компьютер улучшен!')}} ,{name:'Новая обстановка',desc:'Добавить детали и уют в комнату.',cost:45*(state.decor+1),act:()=>{state.decor++;state.money-=45*state.decor;state.room=(state.room+1)%colors.length;notify('Комната обновлена!')}}];upgrades.forEach(u=>{const row=document.createElement('div');row.className='item';const info=document.createElement('div');info.innerHTML='<b>'+u.name+'</b><small>'+u.desc+' Цена: '+u.cost+' 💰</small>';const b=document.createElement('button');b.className='btn goldbtn';b.textContent='Купить';b.disabled=state.money<u.cost;b.onclick=()=>{if(state.money>=u.cost){u.act();save();closePanel();openPanel('shop');draw()} };row.append(info,b);$('dialogItems').append(row)});}
-else if(mode==='decor'){$('dialogTitle').textContent='🪴 Обновление комнаты';$('dialogText').textContent='За 30 монет можно изменить цвет комнаты и добавить немного декора.';$('mainAction').textContent='Обновить за 30 💰';$('mainAction').onclick=()=>{if(state.money<30){notify('Не хватает монет!');return}state.money-=30;state.room=(state.room+1)%colors.length;state.decor=Math.min(3,state.decor+1);save();closePanel();draw();notify('Комната стала уютнее!')};}
-}
-function closePanel(){$('panel').classList.remove('show');panelMode='';draw()}
-$('closePanel').onclick=closePanel;$('workBtn').onclick=()=>nearPC()?openPanel('computer'):notify('Подойди к компьютеру и нажми E.');$('shopBtn').onclick=()=>openPanel('shop');$('decorBtn').onclick=()=>openPanel('decor');$('saveBtn').onclick=save;
-$('resetBtn').onclick=()=>{if(confirm('Начать новую игру? Текущий прогресс будет удалён.')){state={...defaults};localStorage.removeItem('myComputerGameSave');closePanel();draw();notify('Новая игра началась!')}};
-function move(dx,dy){state.x=Math.max(28,Math.min(772,state.x+dx));state.y=Math.max(205,Math.min(435,state.y+dy));draw()}
-document.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();if(e.key==='Escape'){closePanel();return}if($('panel').classList.contains('show'))return;if(e.key.toLowerCase()==='e'){if(nearPC())openPanel('computer');else notify('Подойди ближе к компьютеру!');return}const k=e.key.toLowerCase();if(k==='w'||k==='arrowup')move(0,-12);if(k==='s'||k==='arrowdown')move(0,12);if(k==='a'||k==='arrowleft')move(-12,0);if(k==='d'||k==='arrowright')move(12,0)});
-document.querySelectorAll('[data-move]').forEach(b=>{const dirs={up:[0,-12],down:[0,12],left:[-12,0],right:[12,0]};let timer;b.addEventListener('pointerdown',e=>{e.preventDefault();const [dx,dy]=dirs[b.dataset.move];move(dx,dy);timer=setInterval(()=>move(dx,dy),120)});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>clearInterval(timer)))});
-canvas.addEventListener('click',e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*canvas.width/r.width,y=(e.clientY-r.top)*canvas.height/r.height;if(x>450&&x<650&&y>160&&y<290){if(nearPC())openPanel('computer');else notify('Подойди ближе к компьютеру!')}});
-draw();
-})();
-</script>
+  <main class="app">
+    <header>
+      <h1>🖥️ My Computer Game</h1>
+      <div class="stats">
+        <div class="pill">💰 <span id="money" class="gold">0</span></div>
+        <div class="pill">⭐ Уровень <span id="level">1</span></div>
+        <div class="pill">🖥️ ПК <span id="pcLevel">1</span></div>
+      </div>
+    </header>
+    <div class="xp-wrap" aria-label="Опыт персонажа"><div id="xpBar"></div></div>
+    <div class="pill" style="display:inline-block;margin-bottom:8px">Опыт: <span id="xp">0 / 50</span></div>
+    <section class="stage" aria-label="Игровая комната">
+      <canvas id="game" width="800" height="500" aria-label="Пиксельная комната с персонажем и компьютером"></canvas>
+      <div id="panel" class="panel" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+        <div class="dialog">
+          <h2 id="dialogTitle">Компьютер</h2>
+          <p id="dialogText"></p>
+          <div id="dialogItems" class="items"></div>
+          <div class="controls">
+            <button class="btn primary" id="mainAction" type="button">Начать работу</button>
+            <button class="btn" id="closePanel" type="button">Закрыть (Esc)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <p class="hint"><b>Как играть:</b> ходи на <b>WASD</b> или <b>стрелках</b>. Подойди к компьютеру и нажми <b>E</b>, чтобы работать. Работа приносит деньги и опыт; за новые уровни дают бонусные монеты. Улучшай компьютер и комнату в магазине. Прогресс сохраняется автоматически на этом устройстве.</p>
+    <div class="controls">
+      <button class="btn primary" id="workBtn" type="button">🖥️ Работать за ПК (E)</button>
+      <button class="btn goldbtn" id="shopBtn" type="button">🛒 Магазин</button>
+      <button class="btn" id="decorBtn" type="button">🪴 Обновить комнату</button>
+      <button class="btn" id="saveBtn" type="button">💾 Сохранить</button>
+      <button class="btn" id="resetBtn" type="button">↻ Новая игра</button>
+    </div>
+    <div class="notice" id="notice" aria-live="polite"></div>
+    <div class="mobilepad" aria-label="Управление персонажем">
+      <span></span><button class="btn" data-move="up" type="button" aria-label="Вверх">▲</button><span></span>
+      <button class="btn" data-move="left" type="button" aria-label="Влево">◀</button>
+      <button class="btn" data-move="down" type="button" aria-label="Вниз">▼</button>
+      <button class="btn" data-move="right" type="button" aria-label="Вправо">▶</button>
+    </div>
+  </main>
+  <script src="game.js" defer></script>
 </body>
 </html>
