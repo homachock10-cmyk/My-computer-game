@@ -20,21 +20,26 @@ jobs:
       - name: Get source code
         uses: actions/checkout@v4
 
-      - name: Check game files
+      - name: Check required files
         run: |
-          test -f index.html
           test -s index.html
+          test -s game.js
           grep -qi '<html' index.html
           grep -qi '</html>' index.html
-          echo "Game HTML file exists and has basic HTML structure."
+          grep -q 'src="game.js"' index.html
+          echo "Required game files are present."
+
+      - name: Check JavaScript syntax
+        run: node --check game.js
 
       - name: Package game
         run: |
           mkdir -p dist
-          cp index.html dist/index.html
+          cp index.html game.js dist/
           test -s dist/index.html
+          test -s dist/game.js
 
-      - name: Save build artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: my-computer-game-build
