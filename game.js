@@ -244,10 +244,6 @@ import * as THREE from 'three';
       stand.position.set(4.85,1.25,1.7);stand.castShadow=true;decorGroup.add(stand);
       for(let i=0;i<4;i++){const book=new THREE.Mesh(new THREE.BoxGeometry(.18,.55,.28),material('shelf book '+i,[0x6f8ec2,0xd48c62,0x8cb59a,0x9b82bc][i]));book.position.set(4.45+i*.25,1.86,1.7);book.castShadow=true;decorGroup.add(book);}
     }
-    if (state.decor >= 3) {
-      const bean = new THREE.Mesh(new THREE.IcosahedronGeometry(0.72,1),material('beanbag',0x8e77b7));
-      bean.scale.set(1.15,.65,.85);bean.position.set(1.2,.47,2.5);bean.castShadow=true;decorGroup.add(bean);
-    }
     updateStats();
   }
 
