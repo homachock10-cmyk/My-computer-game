@@ -288,7 +288,9 @@ import * as THREE from 'three';
     pcSubtitle.textContent='Компьютер работает нормально. Данные сохраняются автоматически.';
     pcAppName.textContent = ({work:'💼 Рабочее место',web:'🌐 Внутриигровой браузер',files:'📁 Мои файлы'})[name] || 'Приложение';
     if(name==='work') {
-      pcAppBody.innerHTML='<h3>Рабочая смена</h3><p>Выполняй работу на компьютере, зарабатывай монеты и получай опыт. Улучшенный ПК приносит больше денег.</p><p><b id="pcRewardPreview">Награда за смену: '+(8+state.pc*4)+' монет</b></p><div class="pc-progress"><span id="pcWorkProgress" style="width:0%"></span></div><button class="btn primary" id="pcDoWork" type="button">▶ Начать работу</button><p id="pcWorkStatus" class="pc-status" aria-live="polite">Готов к работе.</p>';
+      pcAppBody.innerHTML='<h3>Рабочая смена</h3><p>Выбери сложность. Чем сложнее работа, тем выше награда.</p><label for="workDifficulty"><b>Сложность работы</b></label><select id="workDifficulty" class="btn" style="display:block;width:100%;margin:8px 0 12px;background:#152641"><option value="easy">Лёгкая — 15 монет</option><option value="medium" selected>Средняя — 30 монет</option><option value="hard">Сложная — 55 монет</option><option value="expert">Эксперт — 90 монет</option></select><p><b id="pcRewardPreview">Награда за смену: 30 монет</b></p><div class="pc-progress"><span id="pcWorkProgress" style="width:0%"></span></div><button class="btn primary" id="pcDoWork" type="button">▶ Начать работу</button><p id="pcWorkStatus" class="pc-status" aria-live="polite">Готов к работе.</p>';
+    } else if(name==='games') {
+      pcAppBody.innerHTML='<h3>🎮 Игры на компьютере</h3><p>Отдохни от работы и заработай немного монет в мини-играх.</p><div class="item"><div><b>Кликер</b><small>Нажми кнопку 10 раз. Награда: 20 монет.</small></div><button class="btn primary" id="clickerBtn" type="button">0 / 10</button></div><p id="clickerStatus" class="pc-status" aria-live="polite"></p><div class="item"><div><b>Угадай число</b><small>Компьютер загадал число от 1 до 5. Награда за верный ответ: 15 монет.</small></div><select id="guessNumber" class="btn" aria-label="Выбери число"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><button class="btn primary" id="guessBtn" type="button">Угадать</button></div><p id="guessStatus" class="pc-status" aria-live="polite"></p>';
     } else if(name==='web') {
       pcAppBody.innerHTML='<h3>Браузер MiniNet</h3><p>Безопасный внутриигровой интернет. Здесь можно посмотреть состояние системы и полезные советы.</p><div class="item"><div><b>Новости комнаты</b><small>Компьютер подключён. Новых обновлений системы нет.</small></div><span>🟢</span></div><div class="item"><div><b>Совет дня</b><small>Улучшай ПК в магазине, чтобы зарабатывать больше за каждую смену.</small></div><span>💡</span></div><p class="pc-status">Статус подключения: подключено</p>';
     } else if(name==='files') {
@@ -330,10 +332,16 @@ import * as THREE from 'three';
     button.addEventListener('click',()=>{if(state.money<cost||unavailable)return;purchase();save(false);showPanel('shop');});
     row.append(info,button);ui.items.append(row);
   }
-  function work() {
-    if(!nearComputer()){notify('Подойди ближе к компьютеру!');return;}
-    const reward=8+state.pc*4;state.money+=reward;gainXP(12+state.pc*2);save(false);updateStats();
-    notify('Работа выполнена: +'+reward+' монет.');
+  function work(difficulty = 'medium') {
+    if(!nearComputer()){notify('Подойди ближе к компьютеру!');return 0;}
+    const rewards = { easy: 15, medium: 30, hard: 55, expert: 90 };
+    const xpRewards = { easy: 8, medium: 14, hard: 24, expert: 38 };
+    const reward = rewards[difficulty] ?? rewards.medium;
+    state.money += reward;
+    gainXP(xpRewards[difficulty] ?? xpRewards.medium);
+    save(false);updateStats();
+    notify('Работа выполнена: +' + reward + ' монет.');
+    return reward;
   }
   function movePlayer(dx,dz,delta) {
     if(ui.panel.classList.contains('show'))return;
@@ -374,15 +382,34 @@ import * as THREE from 'three';
     if(button.id==='pcDoWork') {
       const status=document.getElementById('pcWorkStatus');
       const progress=document.getElementById('pcWorkProgress');
-      button.disabled=true; status.textContent='Выполняется работа...'; progress.style.width='35%';
+      const difficulty=document.getElementById('workDifficulty')?.value || 'medium';
+      const details={easy:{reward:15,time:500,label:'лёгкая'},medium:{reward:30,time:900,label:'средняя'},hard:{reward:55,time:1400,label:'сложная'},expert:{reward:90,time:1900,label:'экспертная'}};
+      const job=details[difficulty]||details.medium;
+      const preview=document.getElementById('pcRewardPreview');
+      if(preview)preview.textContent='Награда за смену: '+job.reward+' монет';
+      button.disabled=true; status.textContent='Выполняется '+job.label+' работа...'; progress.style.width='10%';
+      const started=Date.now();
+      const timer=setInterval(()=>{progress.style.width=Math.min(95,((Date.now()-started)/job.time)*100)+'%';},80);
       setTimeout(()=>{
+        clearInterval(timer);
         if(!pcOverlay.classList.contains('show'))return;
-        progress.style.width='100%'; work();
-        status.textContent='Смена завершена! Получено '+(8+state.pc*4)+' монет. '+pcStatusText();
+        progress.style.width='100%';
+        const earned=work(difficulty);
+        status.textContent='Смена завершена! Получено '+earned+' монет. '+pcStatusText();
         button.disabled=false;
         const clockLabel=document.getElementById('pcClock'); if(clockLabel)clockLabel.textContent='Система готова · '+pcStatusText();
-        const reward=document.getElementById('pcRewardPreview');if(reward)reward.textContent='Награда за смену: '+(8+state.pc*4)+' монет';
-      },450);
+      },job.time);
+    } else if(button.id==='clickerBtn') {
+      const btn=button; const status=document.getElementById('clickerStatus');
+      let count=Number(btn.dataset.count||0)+1; btn.dataset.count=String(count); btn.textContent=count+' / 10';
+      if(count>=10){btn.disabled=true;state.money+=20;gainXP(5);save(false);status.textContent='Отлично! Ты получил 20 монет.';updateStats();}
+      else status.textContent='Ещё '+(10-count)+' нажатий!';
+    } else if(button.id==='guessBtn') {
+      const chosen=Number(document.getElementById('guessNumber')?.value||1);
+      const secret=1+Math.floor(Math.random()*5);const status=document.getElementById('guessStatus');
+      if(chosen===secret){state.money+=15;gainXP(6);save(false);status.textContent='Верно! Выпало число '+secret+'. +15 монет!';}
+      else status.textContent='Не угадал! Компьютер загадал '+secret+'. Попробуй ещё раз.';
+      updateStats();
     } else if(button.id==='pcSaveNow') {
       save(false);const status=document.getElementById('pcFileStatus');if(status)status.textContent='Сохранение выполнено успешно.';
     }
