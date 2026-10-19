@@ -120,10 +120,16 @@ import * as THREE from 'three';
   keep(box('right wall', 5.9, 2.1, 0, 0.22, 4.2, 10, wallColors[state.room]));
   keep(box('back skirting', 0, 0.12, -4.74, 11.8, 0.24, 0.12, 0xd6b98d));
   keep(box('left skirting', -5.74, 0.12, 0, 0.12, 0.24, 9.8, 0xd6b98d));
-  // Wooden floor boards.
-  for (let z = -4.5; z <= 4.4; z += 0.62) keep(box('floor seam', 0, 0.005, z, 11.7, 0.012, 0.025, 0x674b39, {castShadow:false}));
-  for (let x = -5.5; x <= 5.5; x += 1.5) for (let z = -4.2; z <= 4.2; z += 1.24) {
-    keep(box('floor joint', x, 0.006, z, 0.018, 0.013, 0.62, 0x674b39, {castShadow:false}));
+  // Subtle staggered wooden plank seams (avoid long parallel lines that look like rails).
+  for (let row = 0, z = -4.35; z <= 4.4; row++, z += 0.9) {
+    const segmentLength = 2.85;
+    const offset = row % 2 ? -1.425 : 0;
+    for (let x = -5.7 + offset; x < 5.9; x += segmentLength) {
+      const start = Math.max(-5.8, x);
+      const end = Math.min(5.8, x + segmentLength);
+      if (end - start < 0.25) continue;
+      keep(box('floor plank seam', (start + end) / 2, 0.003, z, end - start, 0.006, 0.012, 0x8d674c, {castShadow:false}));
+    }
   }
   // Window, sill and curtains.
   keep(box('window frame', -2.6, 2.65, -4.72, 2.35, 1.75, 0.12, 0x4b405c));
