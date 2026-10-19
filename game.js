@@ -30,8 +30,9 @@ import * as THREE from 'three';
   let lastPointerX = 0, lastPointerY = 0;
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // Disable real-time shadow maps: some Android/WebView GPUs produce large crawling
+  // shadow-map artifacts across the room. The scene keeps its baked-in shading.
+  renderer.shadowMap.enabled = false;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
@@ -40,7 +41,7 @@ import * as THREE from 'three';
   scene.add(new THREE.HemisphereLight(0xdceeff, 0x76543d, 2.0));
   const sunlight = new THREE.DirectionalLight(0xffe3b2, 2.6);
   sunlight.position.set(-4, 10, 6);
-  sunlight.castShadow = true;
+  sunlight.castShadow = false;
   sunlight.shadow.mapSize.set(1024, 1024);
   sunlight.shadow.camera.left = -9; sunlight.shadow.camera.right = 9;
   sunlight.shadow.camera.top = 9; sunlight.shadow.camera.bottom = -9;
